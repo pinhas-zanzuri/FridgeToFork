@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FridgeToFork</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #0d0d1a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 48px 20px;
+        }
+
+        /* --- HEADER --- */
+        header {
+            text-align: center;
+            margin-bottom: 52px;
+        }
+
+        header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #a78bfa, #38bdf8, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: #64748b;
+            font-size: 1rem;
+            letter-spacing: 0.05em;
+        }
+
+        .header-greeting {
+            margin-top: 14px;
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #a78bfa;
+        }
+
+        /* --- SECTION TITLE --- */
+        .section-title {
+            width: 100%;
+            max-width: 860px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #e2e8f0;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title span {
+            font-size: 1.4rem;
+        }
+
+        /* --- GLASS CARD --- */
+        .glass {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            backdrop-filter: blur(12px);
+            padding: 28px;
+            width: 100%;
+            max-width: 860px;
+        }
+
+        /* --- SUGGEST FORM --- */
+        .suggest-form {
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+
+        .form-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 10px;
+        }
+
+        /* ingredient tags */
+        .ingredient-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .ingredient-tag {
+            padding: 7px 16px;
+            border-radius: 99px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.04);
+            color: #94a3b8;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.18s;
+            user-select: none;
+        }
+
+        .ingredient-tag:hover {
+            border-color: #a78bfa;
+            color: #a78bfa;
+        }
+
+        .ingredient-tag.selected {
+            background: linear-gradient(135deg, #7c3aed, #2563eb);
+            border-color: transparent;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        /* text input */
+        .text-input {
+            width: 100%;
+            padding: 13px 18px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            color: #e2e8f0;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .text-input:focus { border-color: #a78bfa; }
+        .text-input::placeholder { color: #475569; }
+
+        /* type buttons */
+        .type-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+
+        .type-btn {
+            padding: 8px 20px;
+            border-radius: 99px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.04);
+            color: #64748b;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.18s;
+        }
+
+        .type-btn:hover { border-color: #38bdf8; color: #38bdf8; }
+
+        .type-btn.active {
+            background: linear-gradient(135deg, #0ea5e9, #6366f1);
+            border-color: transparent;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        /* submit button */
+        .submit-btn {
+            align-self: flex-start;
+            padding: 13px 36px;
+            background: linear-gradient(135deg, #7c3aed, #2563eb);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.15s;
+            letter-spacing: 0.02em;
+        }
+
+        .submit-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+
+        /* --- RESULT BOX --- */
+        .result-box {
+            display: none;
+            margin-top: 20px;
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .result-box.full {
+            background: linear-gradient(135deg, rgba(52,211,153,0.1), rgba(56,189,248,0.08));
+            border-color: rgba(52,211,153,0.3);
+        }
+
+        .result-box.partial {
+            background: linear-gradient(135deg, rgba(251,191,36,0.08), rgba(245,158,11,0.05));
+            border-color: rgba(251,191,36,0.25);
+        }
+
+        .result-badge {
+            display: inline-block;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 3px 10px;
+            border-radius: 99px;
+            margin-bottom: 10px;
+        }
+
+        .result-badge.full { background: rgba(52,211,153,0.2); color: #34d399; }
+        .result-badge.partial { background: rgba(251,191,36,0.2); color: #fbbf24; }
+
+        .result-recipe-name {
+            font-size: 1.9rem;
+            font-weight: 800;
+            color: #f1f5f9;
+            margin-bottom: 6px;
+        }
+
+        .result-meta { color: #64748b; font-size: 0.9rem; margin-bottom: 14px; }
+
+        .missing-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #fbbf24;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 8px;
+        }
+
+        .missing-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+
+        .missing-tag {
+            padding: 4px 14px;
+            border-radius: 99px;
+            background: rgba(251,191,36,0.1);
+            border: 1px solid rgba(251,191,36,0.3);
+            color: #fbbf24;
+            font-size: 0.82rem;
+        }
+
+        /* --- DIVIDER --- */
+        .divider {
+            width: 100%;
+            max-width: 860px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 48px 0 32px;
+        }
+
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255,255,255,0.07);
+        }
+
+        .divider-label {
+            font-size: 0.75rem;
+            color: #334155;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            white-space: nowrap;
+        }
+
+        /* --- TEST CARDS --- */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 860px;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 18px;
+            padding: 24px;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+
+        .card:hover { transform: translateY(-3px); border-color: rgba(167,139,250,0.3); }
+
+        .card h2 {
+            font-size: 0.75rem;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 14px;
+        }
+
+        .card-recipe-name {
+            font-size: 1.6rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #a78bfa, #38bdf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 6px;
+        }
+
+        .card-meta { color: #475569; font-size: 0.85rem; }
+
+        .inventory-list {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+        }
+
+        .inventory-list li {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 99px;
+            padding: 4px 13px;
+            font-size: 0.82rem;
+            color: #94a3b8;
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #34d399;
+            border-radius: 50%;
+            margin-right: 7px;
+        }
+
+        .refresh-btn {
+            margin-top: 28px;
+            padding: 11px 28px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #94a3b8;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .refresh-btn:hover {
+            background: rgba(167,139,250,0.1);
+            border-color: #a78bfa;
+            color: #a78bfa;
+        }
+
+        footer {
+            margin-top: 60px;
+            color: #1e293b;
+            font-size: 0.8rem;
+            letter-spacing: 0.05em;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>🍴 FridgeToFork</h1>
+    <p>From what you have — to what you'll eat</p>
+    <div class="header-greeting" id="greeting">Loading...</div>
+</header>
+
+<!-- טופס קלט מהמשתמש -->
+<div class="section-title"><span>🍽️</span> What can I cook?</div>
+
+<div class="glass">
+    <div class="suggest-form">
+
+        <div>
+            <div class="form-label">Select ingredients</div>
+            <div class="ingredient-tags" id="ingredient-tags">Loading...</div>
+        </div>
+
+        <div>
+            <div class="form-label">Or type additional ingredients (comma separated)</div>
+            <input class="text-input" type="text" id="ingredients-input" placeholder="e.g. eggs, butter, salt..." />
+        </div>
+
+        <div>
+            <div class="form-label">Meal type</div>
+            <div class="type-buttons">
+                <button class="type-btn" data-type="dairy">🧀 Dairy</button>
+                <button class="type-btn" data-type="meat">🥩 Meat</button>
+                <button class="type-btn" data-type="pareve">🥗 Pareve</button>
+                <button class="type-btn active" data-type="any">✨ Any</button>
+            </div>
+        </div>
+
+        <button class="submit-btn" onclick="suggestRecipe()">Find Recipe →</button>
+    </div>
+
+    <div class="result-box" id="result-box">
+        <div class="result-badge" id="result-badge"></div>
+        <div class="result-recipe-name" id="result-recipe"></div>
+        <div class="result-meta" id="result-meta"></div>
+        <div id="missing-section" style="display:none">
+            <div class="missing-label">Still need:</div>
+            <div class="missing-tags" id="missing-tags"></div>
+        </div>
+    </div>
+</div>
+
+<!-- קו הפרדה לאזור הטסטים -->
+<div class="divider">
+    <span class="divider-label">Auto suggestion from fridge inventory — for testing</span>
+</div>
+
+<div class="cards">
+    <div class="card">
+        <h2>Tonight's Recipe</h2>
+        <div class="card-recipe-name" id="recipe">Loading...</div>
+        <div class="card-meta" id="recipe-meta"></div>
+    </div>
+
+    <div class="card">
+        <h2>Fridge Inventory</h2>
+        <ul class="inventory-list" id="inventory">
+            <li>Loading...</li>
+        </ul>
+    </div>
+</div>
+
+<button class="refresh-btn" onclick="fetchData()">🔄 Refresh</button>
+
+<footer>FridgeToFork — Powered by Docker</footer>
+
+<script>
+    let selectedType = "any";
+    let selectedTags = new Set();
+
+    document.querySelectorAll('.type-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            selectedType = btn.dataset.type;
+        });
+    });
+
+    async function loadIngredientTags() {
+        try {
+            const res = await fetch('/api/ingredients');
+            const data = await res.json();
+            const container = document.getElementById('ingredient-tags');
+            container.innerHTML = '';
+            data.ingredients.forEach(ingredient => {
+                const tag = document.createElement('span');
+                tag.className = 'ingredient-tag';
+                tag.textContent = ingredient;
+                tag.addEventListener('click', () => {
+                    if (selectedTags.has(ingredient)) {
+                        selectedTags.delete(ingredient);
+                        tag.classList.remove('selected');
+                    } else {
+                        selectedTags.add(ingredient);
+                        tag.classList.add('selected');
+                    }
+                });
+                container.appendChild(tag);
+            });
+        } catch (err) {
+            document.getElementById('ingredient-tags').textContent = 'Could not load ingredients';
+        }
+    }
+
+    async function suggestRecipe() {
+        const input = document.getElementById('ingredients-input').value;
+        const typedIngredients = input.split(',').map(i => i.trim()).filter(i => i.length > 0);
+        const ingredients = [...new Set([...selectedTags, ...typedIngredients])];
+
+        if (ingredients.length === 0) {
+            alert('Please select or enter at least one ingredient');
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/suggest', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ingredients, type: selectedType})
+            });
+            const data = await res.json();
+
+            const resultBox = document.getElementById('result-box');
+            const badge = document.getElementById('result-badge');
+            const missingSection = document.getElementById('missing-section');
+            const missingTags = document.getElementById('missing-tags');
+
+            resultBox.style.display = 'block';
+            missingSection.style.display = 'none';
+            missingTags.innerHTML = '';
+
+            if (data.recipe) {
+                if (data.full_match) {
+                    resultBox.className = 'result-box full';
+                    badge.className = 'result-badge full';
+                    badge.textContent = '✓ Full match';
+                } else {
+                    resultBox.className = 'result-box partial';
+                    badge.className = 'result-badge partial';
+                    badge.textContent = '~ Closest match';
+                }
+
+                document.getElementById('result-recipe').textContent = data.recipe;
+                document.getElementById('result-meta').textContent =
+                    `${data.matched_ingredients} ingredient${data.matched_ingredients !== 1 ? 's' : ''} matched`;
+
+                if (data.missing && data.missing.length > 0) {
+                    missingSection.style.display = 'block';
+                    data.missing.forEach(item => {
+                        const tag = document.createElement('span');
+                        tag.className = 'missing-tag';
+                        tag.textContent = item;
+                        missingTags.appendChild(tag);
+                    });
+                }
+            } else {
+                resultBox.className = 'result-box partial';
+                badge.className = 'result-badge partial';
+                badge.textContent = 'No match';
+                document.getElementById('result-recipe').textContent = 'No recipe found';
+                document.getElementById('result-meta').textContent = data.message || '';
+            }
+        } catch (err) {
+            document.getElementById('result-recipe').textContent = 'Error connecting to server';
+        }
+    }
+
+    async function fetchData() {
+        try {
+            const res = await fetch('/api');
+            const data = await res.json();
+
+            document.getElementById('greeting').textContent = `👋 Hello, ${data.user}!`;
+
+            if (data.recipe) {
+                document.getElementById('recipe').textContent = data.recipe;
+                document.getElementById('recipe-meta').textContent =
+                    `${data.matched_ingredients} matching ingredients found`;
+            } else {
+                document.getElementById('recipe').textContent = 'No suggestion';
+                document.getElementById('recipe-meta').textContent = data.message;
+            }
+
+            const inventoryEl = document.getElementById('inventory');
+            inventoryEl.innerHTML = '';
+            data.inventory.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                inventoryEl.appendChild(li);
+            });
+
+        } catch (err) {
+            document.getElementById('recipe').textContent = 'Error loading data';
+        }
+    }
+
+    fetchData();
+    loadIngredientTags();
+</script>
+
+</body>
+</html>

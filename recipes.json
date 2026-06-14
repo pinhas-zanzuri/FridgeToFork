@@ -1,0 +1,10 @@
+{
+  "Omelette": {"ingredients": ["eggs", "butter", "salt"], "type": "dairy"},
+  "Pasta": {"ingredients": ["pasta", "tomatoes", "garlic"], "type": "pareve"},
+  "Cheese Toast": {"ingredients": ["bread", "cheese", "butter", "tomatoes"], "type": "dairy"},
+  "Salad": {"ingredients": ["tomato", "cucumber", "olive oil"], "type": "pareve"},
+  "Fried Eggs": {"ingredients": ["eggs", "oil", "salt"], "type": "pareve"},
+  "Rice with vegetables": {"ingredients": ["rice", "carrot", "onion"], "type": "pareve"},
+  "Chicken Soup": {"ingredients": ["chicken", "carrot", "onion", "celery"], "type": "meat"},
+  "Beef Stir Fry": {"ingredients": ["beef", "garlic", "onion", "oil"], "type": "meat"}
+}

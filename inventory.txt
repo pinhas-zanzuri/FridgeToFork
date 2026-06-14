@@ -1,0 +1,7 @@
+salt
+pasta
+tomatoes
+bread
+garlic
+eggs
+butter
